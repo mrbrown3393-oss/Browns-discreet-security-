@@ -1,0 +1,161 @@
+{
+  "app_name": "ZeroTrust AI",
+  "personality": "7 Dark-First Utility DARK",
+  "personality_one_liner": "A high-contrast, tactical command center where metrics dominate, utilizing stark data visualization and ember accents to deliver instant operational clarity.",
+  "color": {
+    "surface": "#09090B",
+    "onSurface": "#FAFAFA",
+    "surfaceSecondary": "#18181B",
+    "onSurfaceSecondary": "#A1A1AA",
+    "surfaceTertiary": "#27272A",
+    "onSurfaceTertiary": "#D4D4D8",
+    "surfaceInverse": "#FAFAFA",
+    "onSurfaceInverse": "#09090B",
+    "brand": "#EA580C",
+    "brandPrimary": "#EA580C",
+    "onBrandPrimary": "#FAFAFA",
+    "brandSecondary": "#C2410C",
+    "onBrandSecondary": "#FAFAFA",
+    "brandTertiary": "#9A3412",
+    "onBrandTertiary": "#FAFAFA",
+    "success": "#10B981",
+    "onSuccess": "#FAFAFA",
+    "warning": "#F59E0B",
+    "onWarning": "#FAFAFA",
+    "error": "#EF4444",
+    "onError": "#FAFAFA",
+    "border": "#27272A",
+    "borderStrong": "#3F3F46",
+    "divider": "#27272A",
+    "muted": "#71717A",
+    "onBrand": "#FAFAFA"
+  },
+  "typography": {
+    "displayFontFamily": "Rajdhani",
+    "textFontFamily": "DM Sans",
+    "scale": {
+      "sm": 12,
+      "base": 14,
+      "lg": 16,
+      "xl": 20,
+      "2xl": 24
+    }
+  },
+  "spacing": {
+    "rule": "Dense and tactical. Use dividers and tonal separation instead of large padding and shadows. Ensure tight grouping for metrics and stats.",
+    "xs": 4,
+    "sm": 8,
+    "md": 12,
+    "lg": 16,
+    "xl": 24,
+    "2xl": 32,
+    "3xl": 48
+  },
+  "radius_tokens": {
+    "sm": 2,
+    "md": 4,
+    "lg": 8,
+    "pill": 999
+  },
+  "shadow_tier": "0",
+  "navigation": "bottom_tabs",
+  "icon_set": "Phosphor",
+  "glassmorphism": {
+    "enabled": "false",
+    "do's": ["Use solid surfaceSecondary with tight borders for sticky headers or bottom tabs to maintain the tactical, operational feel."],
+    "dont's": ["Do not use blur or glassmorphism. Clarity and instantaneous readability beat aesthetic softness in a cybersecurity command center."]
+  },
+  "platform_libraries": {
+    "glass": {
+      "ios": "solid surfaceSecondary",
+      "android": "solid surfaceSecondary",
+      "low_end_android_fallback": "solid surfaceSecondary"
+    },
+    "image": "expo-image",
+    "blur": "expo-blur",
+    "bottom_sheet": "@gorhom/bottom-sheet",
+    "animation": "react-native-reanimated",
+    "gesture": "react-native-gesture-handler"
+  },
+  "screens": [
+    {
+      "name": "Auth",
+      "purpose": "Secure gateway with biometric and hardware key options.",
+      "states": {
+        "loading": "Centered secure handshake pulse.",
+        "empty": "N/A",
+        "error": "Access denied message with retry."
+      },
+      "layout": "Minimalist form. Centered branding. Large primary CTA for Single Sign-On / Biometrics, secondary for Email. No unnecessary decoration."
+    },
+    {
+      "name": "Dashboard",
+      "purpose": "Live threat tracking and system status at a glance.",
+      "states": {
+        "loading": "Skeleton of metrics updating in real-time.",
+        "empty": "No active threats (Safe status card).",
+        "error": "Unable to fetch live feed."
+      },
+      "layout": "Use the 'dark abstract geometric' texture as a 30% opacity header background. Top section: High-level AI-generated status sentence ('3 active threats mitigated in last hour'). Followed by edge-to-edge stacked modules for real-time risk gauges and recent alerts. Use dense, tabular layouts."
+    },
+    {
+      "name": "Devices",
+      "purpose": "Zero-trust access management with individual trust scores.",
+      "states": {
+        "loading": "Skeleton list of IP/Device rows.",
+        "empty": "No devices connected.",
+        "error": "Failed to load directory."
+      },
+      "layout": "List view. Each row shows device name, connection status, MFA icon, and a prominent trust score metric (condensed font). Use sticky filters (e.g., 'Compromised', 'Trusted', 'Pending') at the top."
+    },
+    {
+      "name": "AI_Assistant",
+      "purpose": "Conversational interface to analyze threats and recommend fixes.",
+      "states": {
+        "loading": "AI typing indicator.",
+        "empty": "Start a security query.",
+        "error": "AI service offline."
+      },
+      "layout": "Chat interface. AI messages feature a subtle 'binary code lines' background texture at 10% opacity. Responses include actionable, inline components (e.g., a 'Block IP' button directly in the chat)."
+    },
+    {
+      "name": "Audit",
+      "purpose": "Comprehensive security score and detailed compliance reporting.",
+      "states": {
+        "loading": "Skeleton charts.",
+        "empty": "No audit run yet.",
+        "error": "Failed to compile report."
+      },
+      "layout": "Hero image ('server room') with heavy gradient-to-dark scrim. Giant security score at the top (using Rajdhani display font). Below: segmented controls for 'Network', 'Endpoints', 'Data'. Bar charts and risk indicators."
+    }
+  ],
+  "images": {
+    "dashboard_hero_bg": {
+      "url": "https://images.unsplash.com/photo-1709626011485-6fe000ea2dbc?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzMzJ8MHwxfHNlYXJjaHwxfHxkYXJrJTIwYWJzdHJhY3QlMjBnZW9tZXRyaWMlMjB0ZWNobm9sb2d5JTIwdGV4dHVyZXxlbnwwfHx8fDE3OTAwNTUwOTJ8MA&ixlib=rb-4.1.0&q=85",
+      "alt": "Abstract geometric technology texture"
+    },
+    "ai_assistant_bg": {
+      "url": "https://images.pexels.com/photos/26765065/pexels-photo-26765065.png?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+      "alt": "Green binary code lines creating a digital matrix effect"
+    },
+    "audit_report_hero": {
+      "url": "https://images.unsplash.com/photo-1680992046626-418f7e910589?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1NzV8MHwxfHNlYXJjaHwxfHxkYXJrJTIwc2VydmVyJTIwcm9vbSUyMG1pbmltYWx8ZW58MHx8fHwxNzkwMDU1MDkyfDA&ixlib=rb-4.1.0&q=85",
+      "alt": "A rack of electronic equipment in a dark server room"
+    }
+  },
+  "haptics": {
+    "button_press": "impactLight",
+    "tab_switch": "selection",
+    "alert_trigger": "notificationWarning",
+    "threat_mitigated": "notificationSuccess"
+  },
+  "instructions_to_main_agent": [
+    "Adhere strictly to the '7 Dark-First Utility DARK' layout principles: use sharp borders (sm: 2, md: 4 radius max), stacked modules, and exposed system states. Absolutely no soft shadows or glassmorphism.",
+    "The primary brand color is Rust/Ember (#EA580C) to emphasize alertness and tracking. Only use success/green (#10B981) for resolved or safe states.",
+    "Rely heavily on typography for visual hierarchy. Use Rajdhani for all large metrics, scores, IPs, and section headers. Use DM Sans for readable body content and chat logs.",
+    "Ensure the sticky header and bottom tabs use a solid surfaceSecondary (#18181B) rather than a blur effect.",
+    "For the AI Assistant screen, apply the `ai_assistant_bg` image as a subtle background for the AI's chat bubbles, keeping opacity extremely low (e.g., 5-10%) so text remains fully legible.",
+    "For the Dashboard, place an AI-generated contextual summary (e.g., 'System stable, 2 minor threats blocked') at the very top before the user gets to the raw charts, per modern tactical design research.",
+    "All images used as backgrounds MUST include the top-to-bottom gradient scrim (transparent to surfaceInverse) to guarantee text contrast."
+  ]
+}

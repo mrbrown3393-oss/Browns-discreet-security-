@@ -1,0 +1,65 @@
+import React, { useState } from 'react';
+import { Pressable, Text, View } from 'react-native';
+import { router } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
+import { Brand, Button, Dialog, Notice } from '../src/components/ui';
+import { AppShell, Choices, Field, Loading, QueryError } from '../src/components/security-ui';
+import { useAuth } from '../src/auth/context';
+import { useSubscription } from '../src/billing/context';
+import { simulated } from '../src/billing/client';
+import { useSecurityMutation, useSecurityQuery } from '../src/security/hooks';
+import { Dashboard, Sector } from '../src/security/types';
+import { fonts, makeStyles, useTheme } from '../src/theme';
+
+export default function WorkspaceScreen() {
+  const s = useStyles(); const { colors } = useTheme(); const auth = useAuth(); const billing = useSubscription();
+  const query = useSecurityQuery<Dashboard>('dashboard'); const save = useSecurityMutation();
+  const [account, setAccount] = useState(false); const [workspace, setWorkspace] = useState(false);
+  const [name, setName] = useState(''); const [sector, setSector] = useState<Sector>('personal');
+  const data = query.data; const p = data?.posture;
+  function editWorkspace() { setName(data?.workspace.name || 'My workspace'); setSector(data?.workspace.sector || 'personal'); setWorkspace(true); save.reset(); }
+  const membership = !billing.identityReady ? (billing.identityError ? 'RECONNECT PRO' : 'CHECKING MEMBERSHIP…') : billing.isSubscribed ? 'ZEROTRUST PRO' : 'EXPLORE PRO';
+  return <AppShell testID="workspace-screen" active="Overview">
+    <View style={s.header}><Brand /><Pressable testID="account-menu-button" accessibilityRole="button" accessibilityLabel="Account settings" onPress={() => setAccount(true)} style={s.avatar}><Text style={s.initials}>{auth.user?.name.charAt(0).toUpperCase()}</Text></Pressable></View>
+    <Pressable testID="edit-workspace-button" onPress={editWorkspace} accessibilityRole="button" style={s.workspaceButton}><Text testID="workspace-sector" style={s.eyebrow}>{data?.workspace.sector === 'government' ? 'GOVERNMENT WORKSPACE' : data?.workspace.sector === 'private' ? 'PRIVATE SECTOR WORKSPACE' : 'PERSONAL WORKSPACE'}</Text><Ionicons name="chevron-down" color={colors.muted} size={15} /></Pressable>
+    <Text testID="workspace-welcome" style={s.title}>YOUR SECURITY,{'\n'}IN PERSPECTIVE.</Text><Text testID="workspace-name" style={s.intro}>{data?.workspace.name || 'Your workspace'} · {auth.user?.name.split(' ')[0]}</Text>
+    {query.isLoading && <Loading />}{query.error && <QueryError error={query.error} retry={() => void query.refetch()} />}
+    {p && <>
+      <View style={s.scoreCard}><View style={s.row}><Text style={s.label}>INVENTORY CONTROL SCORE</Text><Ionicons name="shield-checkmark-outline" color={colors.brand} size={22} /></View>
+        <View style={s.scoreLine}><Text testID="dashboard-security-score" style={s.score}>{p.score ?? '—'}</Text><Text style={s.outOf}>/ 100</Text><View style={s.scoreState}><Text testID="dashboard-score-label" style={s.scoreLabel}>{p.score === null ? 'NO DEVICES YET' : p.score >= 80 ? 'STRONGER CONTROLS' : 'ACTION NEEDED'}</Text></View></View>
+        <View style={s.track}><View style={[s.fillBar, { width: `${p.score || 0}%` }]} /></View><Text style={s.caption}>Based on recorded MFA, encryption, updates and access reviews. Not a device scan.</Text>
+      </View>
+      <View style={s.stats}><Stat id="dashboard-device-count" label="DEVICES" value={p.device_count} /><Stat id="dashboard-open-alerts" label="OPEN ALERTS" value={p.open_alerts} /><Stat id="dashboard-critical-alerts" label="CRITICAL" value={p.critical_alerts} /></View>
+      {p.device_count === 0 && <View style={s.onboarding}><Text style={s.cardTitle}>Start with your first device.</Text><Text style={s.body}>Build your inventory to get a real posture score, actionable findings and audit reports.</Text><Button testID="dashboard-add-device-button" title="Register a device" onPress={() => router.push('/devices')} /></View>}
+      <View style={s.section}><Text style={s.label}>PRIORITY ACTIONS</Text><Pressable testID="dashboard-refresh-button" onPress={() => void query.refetch()} style={s.refresh} accessibilityLabel="Refresh workspace"><Ionicons name="refresh" color={colors.muted} size={17} /></Pressable></View>
+      {p.findings.slice(0, 3).map((f, index) => <Pressable testID={`dashboard-finding-${index}`} key={f.title} accessibilityRole="button" onPress={() => router.push(f.title.includes('incident') ? '/alerts' : '/devices')} style={s.finding}><View style={s.findingIcon}><Ionicons name="arrow-forward" color={colors.brand} size={18} /></View><View style={s.grow}><Text style={s.findingTitle}>{f.title}</Text><Text style={s.caption}>{f.detail}</Text></View></Pressable>)}
+      {p.device_count > 0 && !p.findings.length && <Text testID="dashboard-no-findings" style={s.body}>No gaps in your recorded controls. Keep device records current and review them regularly.</Text>}
+      <View style={s.section}><Text style={s.label}>RECENT INCIDENTS</Text><Pressable testID="dashboard-view-alerts" onPress={() => router.push('/alerts')} style={s.refresh}><Text style={s.link}>View all</Text></Pressable></View>
+      {data!.recent_alerts.length ? data!.recent_alerts.slice(0, 3).map(a => <Pressable key={a.id} testID={`dashboard-alert-${a.id}`} onPress={() => router.push('/alerts')} style={s.alertRow}><View style={s.grow}><Text style={s.findingTitle}>{a.title}</Text><Text style={s.caption}>{a.source === 'control_check' ? 'Inventory check' : 'Reported incident'} · {a.status}</Text></View><Text style={s.severity}>{a.severity.toUpperCase()}</Text></Pressable>) : <Text testID="dashboard-no-incidents" style={s.body}>No incidents recorded. This does not mean your environment has been scanned.</Text>}
+    </>}
+    <Pressable testID="open-subscription-button" onPress={() => router.push('/subscription')} style={s.membership}><View style={s.grow}><Text testID="workspace-plan-status" style={s.membershipTitle}>{membership}</Text><Text style={s.caption}>GPT-5.4 guidance + advanced audit reports</Text></View><Ionicons name="chevron-forward" color={colors.brand} size={18} /></Pressable>
+    {!!billing.identityError && <Notice testID="workspace-billing-error" error text={billing.identityError} />}
+    {data?.workspace.sector === 'government' && <Notice testID="government-scope-notice" text="Government workspace: do not enter classified or restricted information. This app does not provide government accreditation or compliance certification." />}
+    <Text testID="dashboard-data-source" style={s.footnote}>Data source: your device registry and incident records. Alerts refresh every 30 seconds. Automatic endpoint monitoring and access enforcement require an external connector and are not enabled.</Text>
+    {simulated && <Text testID="workspace-preview-label" style={s.testLabel}>SUBSCRIPTIONS USE SIMULATED TEST STORE BILLING</Text>}
+    <Dialog testID="workspace-settings-dialog" visible={workspace} title="Workspace settings" onClose={() => !save.isPending && setWorkspace(false)}>
+      <Field testID="workspace-name-input" label="Workspace name" value={name} onChange={setName} /><Text style={s.body}>Choose the context for your guidance and reports.</Text><Choices testID="workspace-sector" values={['personal', 'private', 'government']} value={sector} onChange={value => setSector(value as Sector)} />
+      {save.error && <Notice testID="workspace-save-error" text={save.error.message} error />}<Button testID="workspace-save-button" title="Save workspace" loading={save.isPending} disabled={!name.trim()} onPress={() => save.mutate({ path: 'workspace', body: { name: name.trim(), sector } }, { onSuccess: () => setWorkspace(false) })} />
+    </Dialog>
+    <Dialog testID="account-dialog" visible={account} title="Your account" onClose={() => setAccount(false)}>
+      <Text testID="account-email" style={s.body}>{auth.user?.email}</Text><Text testID="account-user-id" style={s.accountId}>{auth.user?.id}</Text>
+      <Text testID="workspace-subscription-identity" style={s.body}>{billing.identityReady ? 'Verified' : billing.identityError ? 'Needs attention' : 'Connecting…'}</Text>
+      {simulated && <Text testID="billing-verified-user-id" style={s.accountId}>Billing identity: {billing.customerInfo?.originalAppUserId || 'Verifying…'}</Text>}
+      <Button testID="account-edit-workspace" title="Workspace settings" secondary onPress={() => { setAccount(false); editWorkspace(); }} /><Button testID="account-sign-out-button" title="Sign out" secondary loading={auth.busy} disabled={billing.isPurchasing || billing.isRestoring} onPress={auth.logout} />{auth.error && <Notice testID="account-sign-out-error" text={auth.error} error />}
+    </Dialog>
+  </AppShell>;
+}
+function Stat({ id, label, value }: { id: string; label: string; value: number }) { const s = useStyles(); return <View style={s.stat}><Text testID={id} style={s.statNumber}>{value}</Text><Text style={s.statLabel}>{label}</Text></View>; }
+const useStyles = makeStyles(c => ({
+  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingTop: 18, marginBottom: 20 }, avatar: { width: 44, height: 44, backgroundColor: c.surfaceSecondary, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: c.borderStrong, borderRadius: 4 }, initials: { fontFamily: fonts.display, fontSize: 23, color: c.onSurface },
+  workspaceButton: { flexDirection: 'row', alignItems: 'center', gap: 8, minHeight: 44 }, eyebrow: { fontFamily: fonts.medium, fontSize: 9, color: c.brand, letterSpacing: 1.4 }, title: { fontFamily: fonts.display, fontSize: 36, lineHeight: 38, color: c.onSurface }, intro: { fontFamily: fonts.body, fontSize: 13, color: c.muted, marginTop: 10, marginBottom: 24 },
+  scoreCard: { padding: 20, backgroundColor: c.surfaceSecondary, borderWidth: 1, borderColor: c.border, borderRadius: 4 }, row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }, label: { fontFamily: fonts.medium, fontSize: 9, letterSpacing: 1.3, color: c.muted }, scoreLine: { flexDirection: 'row', alignItems: 'baseline', marginVertical: 8, gap: 8 }, score: { fontFamily: fonts.display, fontSize: 66, lineHeight: 80, color: c.onSurface }, outOf: { fontFamily: fonts.display, fontSize: 22, color: c.muted }, scoreState: { flex: 1, alignItems: 'flex-end' }, scoreLabel: { fontSize: 8, fontFamily: fonts.medium, color: c.brand }, track: { height: 3, backgroundColor: c.borderStrong, marginBottom: 12 }, fillBar: { height: 3, backgroundColor: c.brand }, caption: { fontFamily: fonts.body, color: c.muted, fontSize: 11, lineHeight: 18, marginTop: 4 },
+  stats: { flexDirection: 'row', marginTop: 12, gap: 10 }, stat: { flex: 1, paddingVertical: 16, paddingHorizontal: 12, borderWidth: 1, borderColor: c.border, backgroundColor: c.surfaceSecondary }, statNumber: { fontFamily: fonts.display, fontSize: 30, color: c.onSurface }, statLabel: { fontFamily: fonts.medium, fontSize: 8, letterSpacing: 0.8, color: c.muted, marginTop: 4 },
+  onboarding: { gap: 14, marginTop: 24, padding: 18, borderWidth: 1, borderColor: c.borderStrong }, cardTitle: { fontFamily: fonts.display, color: c.onSurface, fontSize: 24 }, body: { fontFamily: fonts.body, color: c.muted, fontSize: 13, lineHeight: 21 }, section: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 24 }, refresh: { minHeight: 44, minWidth: 44, justifyContent: 'center', alignItems: 'center' }, link: { fontFamily: fonts.medium, fontSize: 11, color: c.brand },
+  finding: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 16, borderBottomWidth: 1, borderColor: c.border }, findingIcon: { width: 32, height: 32, backgroundColor: c.brandWash, alignItems: 'center', justifyContent: 'center' }, grow: { flex: 1 }, findingTitle: { fontFamily: fonts.medium, color: c.onSurface, fontSize: 13, lineHeight: 20 }, alertRow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 14, borderBottomWidth: 1, borderColor: c.border }, severity: { color: c.warning, fontFamily: fonts.medium, fontSize: 9 }, membership: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 28, padding: 18, backgroundColor: c.brandWash, borderWidth: 1, borderColor: c.brandTertiary }, membershipTitle: { fontFamily: fonts.display, fontSize: 23, color: c.onSurface }, footnote: { fontFamily: fonts.body, color: c.muted, fontSize: 10, lineHeight: 17, marginTop: 24 }, testLabel: { fontFamily: fonts.medium, fontSize: 8, color: c.warning, letterSpacing: 1, marginTop: 16 }, accountId: { fontFamily: fonts.body, fontSize: 10, color: c.muted },
+}));

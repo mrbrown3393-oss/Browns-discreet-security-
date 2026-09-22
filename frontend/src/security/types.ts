@@ -1,0 +1,10 @@
+export type Sector = 'personal' | 'private' | 'government';
+export type Workspace = { name: string; sector: Sector };
+export type DeviceInput = { name: string; owner: string; platform: 'Windows' | 'macOS' | 'Linux' | 'iOS' | 'Android' | 'Other'; mfa: boolean; encrypted: boolean; updated: boolean; access: 'allowed' | 'review' | 'denied' };
+export type Device = DeviceInput & { id: string; created_at: string; updated_at: string };
+export type Alert = { id: string; title: string; description: string; severity: 'low' | 'medium' | 'high' | 'critical'; source: 'manual' | 'control_check'; status: 'open' | 'resolved'; device_id: string | null; created_at: string; updated_at: string };
+export type Finding = { title: string; detail: string; priority: string };
+export type Posture = { score: number | null; device_count: number; open_alerts: number; critical_alerts: number; mfa_count: number; encrypted_count: number; updated_count: number; reviewed_count: number; findings: Finding[]; checked_at: string };
+export type Dashboard = { workspace: Workspace; posture: Posture; recent_alerts: Alert[] };
+export type Report = { id: string; title: string; workspace: Workspace; posture: Posture; created_at: string; methodology: string };
+export type ChatMessage = { id: string; role: 'user' | 'assistant'; text: string; created_at: string };
