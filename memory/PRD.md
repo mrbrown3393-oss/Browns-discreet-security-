@@ -1,33 +1,51 @@
-# ZeroTrust AI
+# ZeroTrust AI — functional core + support
 
-## Product request
-Advanced cybersecurity mobile SaaS for individuals and organizations, with AI security assistant (GPT-5.4), device/access management, real-time alerts, scores/audits, Google and email/password login; later request for government/private-sector sections. User also requested Apple sign-in (not implemented).
-
-## Current priority: RevenueCat
-User requested RevenueCat for BOTH Apple App Store and Google Play; Pro unlocks AI assistant and advanced security reports. Defaults accepted for plans. User confirmed RevenueCat connected. Provisioned real managed RevenueCat Test Store + Apple/Play apps, pro entitlement/default offering. Defaults monthly/annual. Focus is subscription foundation, not full security suite.
+## User requirements and latest scope
+Mobile cybersecurity SaaS for individuals and organizations: GPT-5.4 assistant, device/access management, alert dashboard, scores/audits, Google + email login, government/private-sector use. RevenueCat for both stores; Pro unlocks assistant and advanced reports. User prioritized finishing a functional app and publishing without further scope expansion; latest addition: support section, full functionality and polish. Apple sign-in was requested earlier but later focus moved to Google/RevenueCat (not implemented).
 
 ## Architecture
-- Expo Router / React Native with actual installed Expo 57.0.24, RN 0.86.3. Preserve versions and app identifiers.
-- FastAPI + Motor MongoDB. All backend routes /api. Config uses dotenv.
-- One shared TanStack Query provider. RevenueCat CustomerInfo is sole source of paid status, client-side only per playbook.
-- Constants.expoConfig.extra from app.config.ts for backend URL and RevenueCat public keys. Native release uses store keys; preview uses test key. No private secrets shipped.
-- Auth: email/password bcrypt over SHA-256 input, opaque 7-day sessions hashed in DB, native SecureStore / web HttpOnly secure cookie. Managed Google exchange backend only, with callback deduplication and mobile hot/cold links. Google linking to preexisting email accounts intentionally blocked, not silently merged.
-- Dark tactical visual system based on design_guidelines.json, centralized theme, Rajdhani/DM Sans, RN primitives.
+- Actual dependencies Expo 57.0.24 / RN 0.86.3 (do not downgrade), Expo Router, FastAPI/Motor/MongoDB.
+- One TanStack Query provider; /api prefix everywhere. Authenticated data queries keyed by user.id, cleared on logout.
+- Config: Constants.expoConfig extra from app.config.ts; Metro public-env fallback for Expo57 browser preview.
+- Email auth: SHA256-hexdigest then bcrypt; opaque 7-day session hashes in Mongo. Native SecureStore, browser HttpOnly secure cookie. Managed Google exchange server-side, deduplicated hot/cold callbacks; no insecure automatic linking of existing password accounts.
+- Server-owned support_staff role, false by default; strict boolean authorization. Env-driven support owner seed never promotes/resets an existing ordinary user.
+- RevenueCat: official Test Store in preview, iOS/Android SDK keys for release. Sole paid status = CustomerInfo.entitlements.active.pro, client-side only per integration playbook. No backend pro flags/webhooks. Stable identity logIn on auth; serialized transitions/listener/cache scoped per user.
+- UI: dark tactical palette in src/theme.ts, Rajdhani/DM Sans, native components, 5-item bottom navigation; support via Overview help icon/account.
 
-## Implemented (testing pending)
-- Login/register UI and APIs, managed Google sign-in flow, session restoration/logout.
-- Workspace account summary and genuine connection/entitlement statuses (no fake security data).
-- Subscription page with dynamic monthly/annual RevenueCat packages/prices, selection, test purchase confirmation, purchase errors/cancellation/pending, restore, membership status, subscription management.
-- Authenticated stable billing identity, per-user query cache and serialized identity transitions. Missing identity/config/offerings fail closed.
-- AI assistant/report entry pages show entitlement gate and explicit in-development status. Neither feature executes requests/generates output yet.
-- Test Store purchases clearly marked simulated, no live charge. Live native sales disabled by default until operator explicitly enables EXPO_PUBLIC_ENABLE_LIVE_SUBSCRIPTIONS after finishing app/store/legal setup.
+## Implemented features
+1. Email signup/login, managed Google flow, session restore/logout and protected screens.
+2. Personal/private/government workspace name/context settings; workspace data remains isolated per account (not shared organization collaboration).
+3. Device registry create/edit/remove, platform/owner fields, declared MFA/encryption/updates controls, recorded access decisions allowed/review/denied.
+4. Automatic review alerts from declared missing controls; manual incident reporting; severity, resolve/reopen, filters; dashboard refreshes every 30s.
+5. Transparent inventory score: complete MFA/encryption/updates/review decisions ÷ four controls per registered device. No devices => no score. Incidents shown separately.
+6. Real GPT-5.4 streaming assistant using workspace posture + last 10 messages. User/assistant history saved in Mongo. Rate cap 10 requests/10min/account. Response timeout/error feedback, no invented telemetry/actions.
+7. Saved audit snapshots from real registered data, control bars, prioritized findings, sector context, timestamp, methodology, native share/selectable-text fallback.
+8. RevenueCat dynamic monthly/annual packages, price/period, explicit Test Store confirmation, purchase/restore/error handling, membership and management. Back button handles direct-load route. Identity ready state avoids false free label.
+9. Support center: 10 searchable/expandable guides, ticket creation/categories/reference/status, customer replies, resolve/reopen, staff inbox/replies/status controls. Ticket reads/mutations authorized server-side. Auto-refresh every30s and manual refresh. No fake agent responses, emails or push notifications.
 
-## Backlog
-- P0: Run and fix integration/auth tests; verify real Test Store purchase and identity isolation. Finish operator setup and native-device/store tests before real sales.
-- P1: Implement GPT-5.4 assistant and real advanced reports; security dashboard/data sources, device/access management, audit score.
-- P1: Government/private-sector workspaces and roles; no compliance certification claimed.
-- P1: Full human Google OAuth/native callback validation; operator-approved privacy/terms/contact; email verification/password recovery before public use.
-- P2: Apple sign-in; organization collaboration/policies; certification requirements only after user clarification.
+## Verified so far
+- Original billing test iteration1: official Test Store purchase/cancel/failure/restore, QA1 Pro vs QA2 free isolation, session reload; backend10/10 auth checks passed.
+- Old back-navigation bug fixed; exact billing identity shown in account dialog for test mode.
+- Actual GPT-5.4 SSE response generated and saved, shown in phone UI.
+- Screenshots: dashboard, device form, persisted AI reply; help search/accordion, ticket creation and thread.
+- JS/Python lint + TypeScript checks pass after support addition. Test-only secrets were removed from agent-created test sources; tests load private credentials. Owner credential rotated and previous sessions revoked; full backend suite rerun: 24/24 passed in 7.58 seconds.
+- Core/support end-to-end regression iteration2: 24/24 backend tests passed, key phone390/360 workflows passed (93% first-run UI assertions, timing retries; no functional defects). Real AI persisted, reports saved, tenant isolation and full customer→staff→customer support thread verified. Publishing readiness scan pending.
 
-## Integration references
-See memory/revenuecat.md for provisioning IDs/remaining store tasks. Keys live in frontend/.env, not memory. See memory/test_credentials.md for dedicated test accounts.
+## Important boundaries / not claimed
+- No endpoint agent, SIEM/MDM/identity connector, automatic live threat detection, real network blocking, or compliance certification. Data comes from declared registry/incident records.
+- Government mode is context, NOT accreditation or permission to store classified data.
+- Support tickets are saved for app-owner handling, not staffed emergency response; no external email/push delivery or response SLA.
+- Preview billing is SIMULATED RevenueCat Test Store. Real purchases intentionally gated by EXPO_PUBLIC_ENABLE_LIVE_SUBSCRIPTIONS until store credentials, operator legal/contact details and device-store tests are finished.
+- Human Google approval/native callbacks and real store transactions still need device/account verification.
+- No publishing/deployment/app-store submission has been performed. Deployment agent is readiness scan only; user Publish action/store approval separate.
+
+## Remaining priorities
+- P0: final readiness scan and explicit handoff. Functional core/support testing complete with no reported blockers. Expo restarted successfully; no app-render errors observed (headless React DevTools installer warning is unrelated to app rendering).
+- P0 before public paid release: native store credentials/products/TestFlight/Play testing; real operator terms/privacy/contact and staff owner credentials; confirm Google device login. See payments panel FAQ.
+- P1: email verification/password recovery, self-service account deletion, real team membership and shared org roles; automatic connectors only when user provides service/credentials.
+- P2: Apple sign-in, native push notifications, richer policy automation and formally specified compliance targets.
+
+## Key files
+- Backend: auth.py, support_admin.py, security_models.py, security_data.py, security_routes.py, assistant_routes.py, support_routes.py, server.py.
+- Frontend: app/{index,devices,alerts,assistant,reports,support,subscription,login}.tsx; src/{auth,billing,security,support}; src/components/{ui,security-ui}.tsx.
+- /app/memory/revenuecat.md has provisioning and real-store setup. Private test/support-owner credentials in /app/memory/test_credentials.md (gitignored). Secrets only backend.env and private memory; RevenueCat public SDK keys frontend.env.

@@ -27,7 +27,7 @@ export function Field({ label, testID, value, onChange, multiline = false }: { l
   const s = useStyles(); const { colors } = useTheme(); return <View style={s.field}><Text style={s.label}>{label}</Text><TextInput testID={testID} accessibilityLabel={label} value={value} onChangeText={onChange} multiline={multiline} maxLength={multiline ? 2000 : 100} placeholderTextColor={colors.muted} style={[s.input, multiline && s.multiline]} /></View>;
 }
 export function Choices({ values, value, onChange, testID }: { values: string[]; value: string; onChange: (v: string) => void; testID: string }) {
-  const s = useStyles(); return <View style={s.choices}>{values.map(item => <Pressable key={item} testID={`${testID}-${item.toLowerCase()}`} accessibilityRole="radio" accessibilityState={{ selected: item === value }} onPress={() => onChange(item)} style={[s.choice, item === value && s.selected]}><Text style={[s.choiceText, item === value && s.selectedText]}>{item}</Text></Pressable>)}</View>;
+  const s = useStyles(); return <View style={s.choices}>{values.map(item => <Pressable key={item} testID={`${testID}-${item.toLowerCase().replace(/\s+/g, '-')}`} accessibilityRole="radio" accessibilityState={{ selected: item === value }} onPress={() => onChange(item)} style={[s.choice, item === value && s.selected]}><Text style={[s.choiceText, item === value && s.selectedText]}>{item}</Text></Pressable>)}</View>;
 }
 export function Loading({ text = 'Loading workspace…' }: { text?: string }) {
   const s = useStyles(); const { colors } = useTheme(); return <View testID="security-loading" style={s.empty}><ActivityIndicator color={colors.brand} /><Text style={s.body}>{text}</Text></View>;

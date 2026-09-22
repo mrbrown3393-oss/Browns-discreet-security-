@@ -116,6 +116,17 @@ backend:
         agent: main
         comment: "Two dedicated accounts registered through external /api/auth/register; browser login and account navigation passed. Native SecureStore, browser HttpOnly cookie, opaque 7-day Mongo sessions. Google callback implemented but full provider approval not verified."
 frontend:
+  - task: "Core security workspace and support center regression"
+    implemented: true
+    working: true
+    file: "/app/frontend/app/support.tsx"
+    stuck_count: 0
+    priority: high
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: main
+        comment: "Iteration2 passed core/support workflows, real AI, reports, tenant/support isolation. 24/24 backend tests passed again after removing test-source credentials and rotating owner password. Phone390/360 critical flows passed; no functional defects. Google human OAuth/native store-device tests remain external."
   - task: "RevenueCat real offerings and stable user identity"
     implemented: true
     working: true
@@ -166,6 +177,10 @@ test_plan:
   test_all: true
   test_priority: high_first
 agent_communication:
+  - agent: main
+    message: "FINAL verification: iteration_2.json read; no backend/frontend issues reported, no retest required. Test agent added only support test source/report. Removed all real credentials from tests (private-memory fixture), rotated preview support-owner credential + revoked sessions, updated memory, then reran full suite24/24 pass. Tests now auto-record credentials for disposable test users. Expo restarted, backend healthy. Final readiness scan pending; no publication performed. See memory/LAUNCH_CHECKLIST.md for honest launch prerequisites/remaining native and operator tasks."
+  - agent: main
+    message: "LATEST: support center added before iteration2. /api/support/tickets create/list/detail/reply/status, staff-only /api/support/inbox; Pydantic response models exclude Mongo IDs. Seeded support.owner@example.com with strong private credentials in memory/test_credentials.md/backend.env; no reset/promotion on restart; User.support_staff strict boolean false default. In UI Overview help icon open-support-button, Help/My tickets/Staff inbox tabs; staff tab only server role. Main created QA1 ticket subject 'QA support workflow verification' reference ZT-D0E2C05E, possibly two messages. Verify persisted customer reply rather than matching composer input. Test staff reply and status, QA2 404/403 on other data. All lints/tsc pass. Native form modals scroll/keyboard avoidance. Latest screenshot clean help UI. Full core/support tests now, then readiness scan. Do not retest redundant purchases; preserve working RC auth identity."
   - agent: main
     message: "2026-09-22 core feature implementation ready for iteration 2. Added /api/dashboard, workspace settings personal/private/government, devices CRUD+control findings/access registry, incidents create/resolve/reopen, deterministic score and persisted audit snapshots, real streaming GPT-5.4 assistant/history. Account-scoped data; no fake monitoring. Actual GPT-5.4 SSE succeeded and persisted; JS/Python lint + tsc passed. Screenshots verified dashboard, device form, Pro assistant displays saved real answer. New app screens index/devices/alerts/assistant/reports with bottom nav. Test QA1 Pro vs QA2 free, tenant isolation, record persistence, score math, form mutations, reporting and UI AI stream (one short query only to conserve credits). Back navigation fix applied for direct /subscription entry. Added billing identity in account dialog for exact ID assertions and workspace membership-loading label prevents false free state. Previous Google external outage recovered per troubleshooting; full human OAuth not claimed verified. No need to retest all purchases: iteration1 passed actual official RC Test Store. Need focused core E2E at 390 width incl form modal scroll and 360 width overflow. Update PRD pending after results."
   - agent: main

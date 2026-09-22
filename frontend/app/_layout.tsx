@@ -20,7 +20,7 @@ function AuthGate() {
   if (loading) return <View testID="session-loading" style={{ flex: 1, backgroundColor: colors.surface, justifyContent: 'center' }}><ActivityIndicator color={colors.brand} /></View>;
   return <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.surface } }}>
     <Stack.Protected guard={!user}><Stack.Screen name="login" /></Stack.Protected>
-    <Stack.Protected guard={!!user}><Stack.Screen name="index" /><Stack.Screen name="subscription" /><Stack.Screen name="feature" /><Stack.Screen name="devices" /><Stack.Screen name="alerts" /><Stack.Screen name="assistant" /><Stack.Screen name="reports" /></Stack.Protected>
+    <Stack.Protected guard={!!user}><Stack.Screen name="index" /><Stack.Screen name="subscription" /><Stack.Screen name="feature" /><Stack.Screen name="devices" /><Stack.Screen name="alerts" /><Stack.Screen name="assistant" /><Stack.Screen name="reports" /><Stack.Screen name="support" /></Stack.Protected>
   </Stack>;
 }
 export default function RootLayout() {

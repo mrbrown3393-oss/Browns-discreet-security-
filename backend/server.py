@@ -13,6 +13,8 @@ from auth import router as auth_router, initialize_auth
 from security_routes import router as security_router
 from assistant_routes import router as assistant_router
 from security_data import initialize_security
+from support_routes import router as support_router, initialize_support
+from support_admin import seed_support_admin
 
 
 ROOT_DIR = Path(__file__).parent
@@ -29,12 +31,15 @@ app.state.db = db
 app.include_router(auth_router)
 app.include_router(security_router)
 app.include_router(assistant_router)
+app.include_router(support_router)
 
 
 @app.on_event("startup")
 async def startup():
     await initialize_auth(db)
     await initialize_security(db)
+    await initialize_support(db)
+    await seed_support_admin(db)
 
 # Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")

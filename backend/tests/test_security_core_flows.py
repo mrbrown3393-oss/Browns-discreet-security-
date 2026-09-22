@@ -1,13 +1,15 @@
 """Security workspace module tests: workspace/devices/alerts/reports/tenant isolation."""
 
 import uuid
+import secrets
 import requests
 import pytest
+from conftest import credential_password, record_test_account
 
 
 QA1_EMAIL = "revenuecat.qa1@example.com"
 QA2_EMAIL = "revenuecat.qa2@example.com"
-QA_PASSWORD = "ZtRc-Preview!2026-71"
+QA_PASSWORD = credential_password(QA1_EMAIL)
 
 
 def _login(base_url: str, email: str, password: str) -> requests.Session:
@@ -42,13 +44,14 @@ def qa2_session(base_url: str):
 def temp_user_session(base_url: str):
     # Dedicated temporary user fixture for deterministic score and no-device report checks.
     email = f"test_security_{uuid.uuid4().hex[:10]}@example.com"
-    password = "ZtRc-Temp!2026-77"
+    password = secrets.token_urlsafe(24)
     register = requests.post(
         f"{base_url}/api/auth/register",
         json={"name": "TEST Security Temp", "email": email, "password": password},
         headers={"Content-Type": "application/json"},
     )
     assert register.status_code == 201
+    record_test_account(email, password, register.json()["user"]["id"])
     session = _login(base_url, email, password)
     yield session, email
     session.post(f"{base_url}/api/auth/logout", json={})

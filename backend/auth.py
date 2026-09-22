@@ -7,7 +7,7 @@ from datetime import datetime, timedelta, timezone
 import bcrypt
 import httpx
 from fastapi import APIRouter, HTTPException, Request, Response
-from pydantic import BaseModel, ConfigDict, EmailStr, Field
+from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
 from pymongo.errors import DuplicateKeyError
 from starlette.concurrency import run_in_threadpool
 
@@ -19,6 +19,12 @@ class User(BaseModel):
     id: str
     email: EmailStr
     name: str
+    support_staff: bool = False
+
+    @field_validator("support_staff", mode="before")
+    @classmethod
+    def strict_staff_role(cls, value):
+        return value is True
 
 
 class Session(BaseModel):
@@ -110,7 +116,7 @@ async def register(body: Registration, request: Request, response: Response):
         raise HTTPException(422, "Please enter your name.")
     hashed = await run_in_threadpool(bcrypt.hashpw, digest(body.password).encode(), bcrypt.gensalt(12))
     user = {"id": f"user_{uuid.uuid4().hex}", "email": str(body.email).lower(),
-            "name": name, "password_hash": hashed.decode(), "provider": "email",
+            "name": name, "password_hash": hashed.decode(), "provider": "email", "support_staff": False,
             "created_at": datetime.now(timezone.utc)}
     try:
         await request.app.state.db.users.insert_one(dict(user))
@@ -155,7 +161,7 @@ async def google_session(body: GoogleSession, request: Request, response: Respon
     if existing and existing.get("provider") != "google":
         raise HTTPException(409, "Use email and password for this account. Google linking is not enabled yet.")
     await db.users.update_one({"email": email}, {"$setOnInsert": {
-        "id": f"user_{uuid.uuid4().hex}", "email": email, "provider": "google",
+        "id": f"user_{uuid.uuid4().hex}", "email": email, "provider": "google", "support_staff": False,
         "created_at": datetime.now(timezone.utc),
     }, "$set": {"name": data.get("name") or email.split("@")[0]}}, upsert=True)
     user = await db.users.find_one({"email": email}, {"_id": 0, "password_hash": 0})

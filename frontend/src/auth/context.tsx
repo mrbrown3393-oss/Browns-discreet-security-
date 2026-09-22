@@ -7,7 +7,7 @@ import { initialAuthUrl, clearAuthUrl, openGoogle, sessionId } from './google';
 import { readToken, writeToken, removeToken } from './token-store';
 import { bindRevenueCat, billingConfigError, rcEnabled } from '../billing/client';
 
-export type User = { id: string; name: string; email: string };
+export type User = { id: string; name: string; email: string; support_staff?: boolean };
 type Session = { user: User; session_token: string };
 type AuthInput = { email: string; password: string; name?: string };
 const exchanges = new Map<string, Promise<Session>>();

@@ -2,10 +2,11 @@
 
 import uuid
 import requests
+from conftest import credential_password
 
 
 QA1_EMAIL = "revenuecat.qa1@example.com"
-QA1_PASSWORD = "ZtRc-Preview!2026-71"
+QA1_PASSWORD = credential_password(QA1_EMAIL)
 
 
 def test_api_root_health(base_url: str, api_client: requests.Session):

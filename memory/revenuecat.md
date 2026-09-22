@@ -1,4 +1,4 @@
-# RevenueCat — integrated, testing pending (2026-09-22)
+# RevenueCat — integrated, Test Store verified (2026-09-22)
 
 This file preserves RevenueCat facts for later integration-proxy operations. No credentials belong here.
 
@@ -28,7 +28,7 @@ This file preserves RevenueCat facts for later integration-proxy operations. No 
 - Offerings -> packages -> product, dynamic price/title/period. No invented products or local pro grants.
 - Restore purchases present; subscription-management URL native; explanatory Test Store management modal.
 - Pro status uses only CustomerInfo.entitlements.active.pro. No backend subscription fields/routes/webhooks.
-- AI assistant/report entry points reflect Pro access but explicitly remain in development (no fake AI/reports).
+- Pro now includes the real GPT-5.4 streaming assistant and persisted inventory-based audit reports; QA1 Pro vs QA2 free gates verified.
 - Live sales fail closed until EXPO_PUBLIC_ENABLE_LIVE_SUBSCRIPTIONS=true. Do NOT enable until capabilities, legal/operator policies, and store prerequisites are finished. Preview test purchases remain enabled.
 
 ## Proxy operations (do NOT call RevenueCat REST directly)
@@ -44,9 +44,9 @@ This file preserves RevenueCat facts for later integration-proxy operations. No 
 1. App Store Connect IAP key (.p8) + API key, and Google Play service-account JSON: configure in RevenueCat dashboard for corresponding apps. Never paste private credentials into source.
 2. Complete payment profiles/agreements in App Store Connect and Google Play Console.
 3. Create matching in-app subscriptions in both stores using EXACT store identifiers in RevenueCat (internal prod... IDs above are NOT store SKUs). Configure Google base plans.
-4. Finish Pro AI/reports and app-operator terms/privacy/contact details, then enable live-sales config.
+4. Finalize app-operator terms/privacy/contact details, then enable live-sales config after store/device validation. Pro AI/reports are now implemented and verified.
 5. Native release/device testing through TestFlight and Play internal testing; real store purchases not verified here.
 6. All production RevenueCat setup steps are available in the payments panel FAQ.
 
 ## Verification
-Pending end-to-end testing. Real Google provider completion needs a human Google account; mobile device/store verification is outside browser preview.
+Official Test Store purchase, cancellation, failure handling, restore, entitlement persistence and QA1/QA2 account isolation passed iteration1. Core Pro assistant/reports passed iteration2 with a real GPT-5.4 response. Real Google provider completion needs a human Google account; native store verification is outside browser preview.
